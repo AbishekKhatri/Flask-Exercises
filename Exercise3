@@ -1,0 +1,65 @@
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+# hardcoded list of student organizations
+orgs = ['Art Club', 'Chess Club', 'Dance Team', 'Robotics Club', 'Sports Club']
+
+# dictionary to store registered users
+registered_users = {}
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    if request.method == 'POST':
+        name = request.form['name']
+        org = request.form['org']
+        if not name:
+            error = 'Name is required.'
+        elif not org:
+            error = 'Organization is required.'
+        elif org not in orgs:
+            error = f'Invalid organization. Choose from: {", ".join(orgs)}.'
+        elif name in registered_users:
+            error = f'{name} is already registered for {registered_users[name]}.'
+        else:
+            registered_users[name] = org
+            return redirect(url_for('users'))
+        return render_template('home.html', orgs=orgs, error=error)
+    return render_template('home.html', orgs=orgs)
+
+@app.route('/users')
+def users():
+    return render_template('users.html', users=registered_users)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    
+    
+Here is the HTML form for the home page:
+{% extends "layout.html" %}
+{% block content %}
+  <h1>Register for a Student Organization</h1>
+  {% if error %}
+    <div class="error">{{ error }}</div>
+  {% endif %}
+  <form action="/" method="post">
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name" required>
+    <label for="org">Organization:</label>
+    <select name="org" id="org" required>
+      <option value="" selected disabled>Select an organization</option>
+      {% for org in orgs %}
+        <option value="{{ org }}">{{ org }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Register</button>
+  </form>
+{% endblock %}
+
+
+Here is the HTML template for the users page:
+{% extends "layout.html" %}
+{% block content %}
+  <h1>Registered Users</h1>
+  <ul>
+    {% for name
