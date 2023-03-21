@@ -1,0 +1,25 @@
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/check_number')
+def check_number():
+    num = request.args.get('number')
+    if num is None:
+        return render_template('error.html', message='No number was provided')
+    try:
+        num = int(num)
+        if num % 2 == 0:
+            result = f'{num} is an even number.'
+        else:
+            result = f'{num} is an odd number.'
+    except ValueError:
+        result = f'{num} is not an integer.'
+    return render_template('result.html', result=result)
+
+if __name__ == '__main__':
+    app.run(debug=True)
